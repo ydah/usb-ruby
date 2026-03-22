@@ -1,38 +1,51 @@
-# Usb
+# usb-ruby
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/usb`. To experiment with that code, run `bin/console` for an interactive prompt.
+`usb-ruby` is a Ruby FFI binding for libusb 1.0. It exposes the libusb API through the top-level `USB` module and does not require native extension compilation.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
-Install the gem and add to the application's Gemfile by executing:
+Add the gem to your Gemfile:
 
 ```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+bundle add usb-ruby
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+Or install it directly:
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+gem install usb-ruby
 ```
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require "usb"
+
+USB::Context.open do |context|
+  context.devices.each do |device|
+    descriptor = device.device_descriptor
+    puts format("%03d/%03d %04x:%04x",
+                device.bus_number,
+                device.device_address,
+                descriptor.vendor_id,
+                descriptor.product_id)
+  end
+end
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Run:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```bash
+bundle install
+bundle exec rspec
+bundle exec rake install
+```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/usb.
+Bug reports and pull requests are welcome.
 
 ## License
 
