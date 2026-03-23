@@ -13,4 +13,12 @@ RSpec.describe USB::Error do
   it "passes through non-negative results" do
     expect(described_class.raise_on_error(7)).to eq(7)
   end
+
+  it "falls back to generic error text when libusb error helpers are unavailable" do
+    allow(USB::FFIBindings).to receive(:libusb_error_name).and_raise(LoadError, "libusb missing")
+    allow(USB::FFIBindings).to receive(:libusb_strerror).and_raise(LoadError, "libusb missing")
+
+    expect { described_class.raise_on_error(USB::LIBUSB_ERROR_BUSY) }
+      .to raise_error(USB::BusyError, "-6: libusb error -6")
+  end
 end

@@ -19,13 +19,13 @@ module USB
 
       def libusb_error_name(code)
         FFIBindings.libusb_error_name(code)
-      rescue StandardError
+      rescue LoadError, StandardError
         code.to_s
       end
 
       def libusb_error_description(code)
         FFIBindings.libusb_strerror(code)
-      rescue StandardError
+      rescue LoadError, StandardError
         "libusb error #{code}"
       end
     end
