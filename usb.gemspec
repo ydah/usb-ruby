@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Ruby FFI bindings for libusb 1.0"
   spec.description = "usb-ruby provides idiomatic Ruby access to libusb 1.0 via FFI without native extensions."
-  spec.homepage = "https://github.com/ydah/usb"
+  spec.homepage = "https://github.com/ydah/usb-ruby"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0"
   spec.metadata["source_code_uri"] = spec.homepage
