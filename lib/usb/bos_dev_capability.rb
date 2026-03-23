@@ -2,9 +2,10 @@
 
 module USB
   class BOSDevCapability
-    def initialize(ptr)
+    def initialize(ptr, bos_descriptor = nil)
       raise ArgumentError, "BOS capability pointer is required" if ptr.nil? || ptr.null?
 
+      @bos_descriptor = bos_descriptor
       @ptr = ptr
       @struct = FFIBindings::BOSDevCapabilityStruct.new(@ptr)
     end

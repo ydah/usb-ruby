@@ -28,8 +28,23 @@ module USB
 
       Array.new(count) do |index|
         capability_ptr = base_ptr.get_pointer(index * FFI::Pointer.size)
-        BOSDevCapability.new(capability_ptr)
+        BOSDevCapability.new(capability_ptr, self)
       end
+    end
+
+    def close
+      return if @ptr.nil? || @ptr.null?
+
+      ObjectSpace.undefine_finalizer(self)
+      FFIBindings.libusb_free_bos_descriptor(@ptr)
+      @ptr = FFI::Pointer::NULL
+      @struct = nil
+    end
+
+    alias free close
+
+    def to_ptr
+      @ptr
     end
 
     def inspect

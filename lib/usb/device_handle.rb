@@ -29,6 +29,7 @@ module USB
     def close
       return if closed?
 
+      ObjectSpace.undefine_finalizer(self)
       FFIBindings.libusb_close(@ptr)
       @ptr = FFI::Pointer::NULL
     end
@@ -99,10 +100,12 @@ module USB
     end
 
     def with_interface(number)
+      claimed = false
       claim_interface(number)
+      claimed = true
       yield self
     ensure
-      release_interface(number) unless closed?
+      release_interface(number) if claimed && !closed?
     end
 
     def control_transfer(bm_request_type:, b_request:, w_value:, w_index:, data_or_length: nil, timeout: 1000)

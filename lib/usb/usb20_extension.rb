@@ -25,6 +25,21 @@ module USB
       (attributes & 0x02) != 0
     end
 
+    def close
+      return if @ptr.nil? || @ptr.null?
+
+      ObjectSpace.undefine_finalizer(self)
+      FFIBindings.libusb_free_usb_2_0_extension_descriptor(@ptr)
+      @ptr = FFI::Pointer::NULL
+      @struct = nil
+    end
+
+    alias free close
+
+    def to_ptr
+      @ptr
+    end
+
     def inspect
       "#<USB::USB20Extension attributes=0x#{attributes.to_s(16)}>"
     end

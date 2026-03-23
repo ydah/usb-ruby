@@ -69,6 +69,7 @@ module USB
     def close
       return if @ptr.nil? || @ptr.null?
 
+      ObjectSpace.undefine_finalizer(self)
       FFIBindings.libusb_free_config_descriptor(@ptr)
       @ptr = FFI::Pointer::NULL
       @struct = nil

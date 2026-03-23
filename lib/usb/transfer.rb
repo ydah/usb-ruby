@@ -62,6 +62,13 @@ module USB
         transfer.buffer = data
         transfer
       end
+
+      def finalizer(ptr)
+        proc do
+          FFIBindings.libusb_free_transfer(ptr) unless ptr.nil? || ptr.null?
+        rescue StandardError
+        end
+      end
     end
 
     def initialize(num_iso_packets: 0)
@@ -74,11 +81,13 @@ module USB
       @struct[:user_data] = FFI::Pointer::NULL
       @callback = nil
       @buffer = nil
+      ObjectSpace.define_finalizer(self, self.class.finalizer(@ptr))
     end
 
     def free
       return if @ptr.nil? || @ptr.null?
 
+      ObjectSpace.undefine_finalizer(self)
       self.class.registry.delete(@ptr.address)
       FFIBindings.libusb_free_transfer(@ptr)
       @ptr = FFI::Pointer::NULL
@@ -127,8 +136,10 @@ module USB
     end
 
     def submit
+      free_transfer = (flags & TRANSFER_FREE_TRANSFER) != 0
       self.class.registry[@ptr.address] = self
       Error.raise_on_error(FFIBindings.libusb_submit_transfer(@ptr))
+      ObjectSpace.undefine_finalizer(self) if free_transfer
       self
     rescue StandardError
       self.class.registry.delete(@ptr.address)
@@ -173,8 +184,14 @@ module USB
     private
 
     def invoke_callback
+      free_transfer = !@struct.nil? && (flags & TRANSFER_FREE_TRANSFER) != 0
       self.class.registry.delete(@ptr.address)
       @callback&.call(self)
+      return unless free_transfer
+
+      @ptr = FFI::Pointer::NULL
+      @struct = nil
+      @buffer = nil
     end
 
     def iso_packet_pointer(index)

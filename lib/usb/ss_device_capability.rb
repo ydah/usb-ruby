@@ -37,6 +37,21 @@ module USB
       @struct[:bU2DevExitLat]
     end
 
+    def close
+      return if @ptr.nil? || @ptr.null?
+
+      ObjectSpace.undefine_finalizer(self)
+      FFIBindings.libusb_free_ss_usb_device_capability_descriptor(@ptr)
+      @ptr = FFI::Pointer::NULL
+      @struct = nil
+    end
+
+    alias free close
+
+    def to_ptr
+      @ptr
+    end
+
     def inspect
       "#<USB::SSDeviceCapability speed_supported=0x#{speed_supported.to_s(16)}>"
     end

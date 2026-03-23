@@ -45,7 +45,7 @@ bundle exec rake install
 
 ## Contributing
 
-Bug reports and pull requests are welcome.
+Bug reports and pull requests are welcome at https://github.com/ydah/usb.
 
 ## License
 

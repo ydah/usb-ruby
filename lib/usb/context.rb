@@ -22,8 +22,9 @@ module USB
       end
     end
 
-    def initialize(options: {})
+    def initialize(options: nil, **kwargs)
       FFIBindings.ensure_loaded!
+      options = (options || {}).merge(kwargs)
 
       context_ptr = FFI::MemoryPointer.new(:pointer)
 
@@ -48,6 +49,7 @@ module USB
     def close
       return if closed?
 
+      ObjectSpace.undefine_finalizer(self)
       @hotplug_callbacks.keys.each { |handle| deregister_hotplug(handle) }
       FFIBindings.libusb_exit(@ptr)
       @ptr = FFI::Pointer::NULL
@@ -60,9 +62,9 @@ module USB
 
     def devices(vendor_id: nil, product_id: nil, device_class: nil)
       all = raw_device_list
-      all.select! { |device| device.vendor_id == vendor_id } if vendor_id
-      all.select! { |device| device.product_id == product_id } if product_id
-      all.select! { |device| device.device_class == device_class } if device_class
+      all.select! { |device| device.vendor_id == vendor_id } unless vendor_id.nil?
+      all.select! { |device| device.product_id == product_id } unless product_id.nil?
+      all.select! { |device| device.device_class == device_class } unless device_class.nil?
       all
     end
 

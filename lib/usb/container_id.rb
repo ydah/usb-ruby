@@ -21,6 +21,21 @@ module USB
       @struct[:ContainerID].to_a
     end
 
+    def close
+      return if @ptr.nil? || @ptr.null?
+
+      ObjectSpace.undefine_finalizer(self)
+      FFIBindings.libusb_free_container_id_descriptor(@ptr)
+      @ptr = FFI::Pointer::NULL
+      @struct = nil
+    end
+
+    alias free close
+
+    def to_ptr
+      @ptr
+    end
+
     def inspect
       "#<USB::ContainerID #{container_id.map { |byte| format('%02x', byte) }.join}>"
     end
